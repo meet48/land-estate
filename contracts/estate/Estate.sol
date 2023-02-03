@@ -18,7 +18,6 @@ contract Estate is ERC721 , Ownable , EstateStorage{
         return super.supportsInterface(interfaceId);
     }
 
-
     /**
      * @dev Transfer ownership.
      */    
@@ -26,7 +25,6 @@ contract Estate is ERC721 , Ownable , EstateStorage{
         require(_newOwner != address(0), "zero address");
         _transferOwnership(_newOwner);
     }
-
 
     /**
      * @dev Set the land contract.
@@ -36,7 +34,6 @@ contract Estate is ERC721 , Ownable , EstateStorage{
         Land = ILAND(_land);
         emit SetLandContract(_land);
     }
-
 
     /**
      * @dev Msg.sender has to be land contract.
@@ -81,7 +78,6 @@ contract Estate is ERC721 , Ownable , EstateStorage{
         return out;
     }
 
-
     /**
      * @dev Add landId to estateId.
      */    
@@ -98,14 +94,12 @@ contract Estate is ERC721 , Ownable , EstateStorage{
         emit AddLand(estateId , landId);
     }
 
-
     /**
      * @dev Remove landId from estateId.
      */    
     function transferLand(uint256 estateId , uint256 landId, address to) external canTransfer(estateId) {
         return _transferLand(estateId , landId , to);
     }
-
 
     /**
      * @dev Batch remove landId from estateId.
@@ -116,7 +110,6 @@ contract Estate is ERC721 , Ownable , EstateStorage{
             _transferLand(estateId, landIds[i], to);
         }
     }
-
 
     function _transferLand(uint256 estateId , uint256 landId , address to) internal {
         require(to != address(0), "You can not transfer LAND to an empty address");
@@ -143,7 +136,6 @@ contract Estate is ERC721 , Ownable , EstateStorage{
         Land.safeTransferFrom(address(this), to , landId);
         emit RemoveLand(estateId, landId, to);
     }
-
 
     /**
      * @dev Is can remove landId of estateId.
@@ -184,7 +176,6 @@ contract Estate is ERC721 , Ownable , EstateStorage{
         return _isApprovedOrOwner(operator, estateId) || updateOperator[estateId] == operator || updateManager[owner][operator];
     }
 
-    
     /**
      * @dev LandId updates authentication.
      */    
@@ -192,7 +183,6 @@ contract Estate is ERC721 , Ownable , EstateStorage{
         require(_isUpdateAuthorized(msg.sender, estateId) || Land.updateOperator(landId) == msg.sender , "unauthorized user");
         _;
     }
-
 
     /**
      * @dev Set the operator of the owner.
@@ -203,7 +193,6 @@ contract Estate is ERC721 , Ownable , EstateStorage{
         updateManager[_owner][_operator] = _approved;
         emit UpdateManager(_owner, _operator, msg.sender, _approved);
     }
-
 
     /**
      * @dev set the operator of the estateId.
@@ -234,14 +223,12 @@ contract Estate is ERC721 , Ownable , EstateStorage{
         estateData[estateId] = metadata;
     }
 
-    
     /**
      * @dev Update land data.
      */    
     function updateLandData(uint256 estateId, uint256 landId, string calldata data) public {
         _updateLandData(estateId, landId, data);
     }
-
 
     /**
      * @dev Batch update land data.
@@ -261,7 +248,6 @@ contract Estate is ERC721 , Ownable , EstateStorage{
         Land.updateLandData(x, y, data);
     }
 
-
     /**
      * @dev Set the operator of the landId.
      */    
@@ -269,7 +255,6 @@ contract Estate is ERC721 , Ownable , EstateStorage{
         _isLandIdInEstate(landId , estateId);
         Land.setUpdateOperator(landId, operator);
     }
-
 
     /**
      * @dev Batch set the operator of the landId.
@@ -281,11 +266,9 @@ contract Estate is ERC721 , Ownable , EstateStorage{
         Land.setManyUpdateOperator(_landIds, _operator);
     }
 
-
     function _isLandIdInEstate(uint256 landId , uint256 estateId) private view {
         require(landIdEstate[landId] == estateId, "The LAND is not part of the Estate");
     }
-
 
     /**
      * @dev Returns the number of landId's in estateId.
@@ -293,7 +276,6 @@ contract Estate is ERC721 , Ownable , EstateStorage{
     function getSize(uint256 estateId) external view returns (uint256) {
         return estateLandIds[estateId].length;
     }
-
 
     /**
      * @dev Returns all landId's in estateId.
@@ -322,20 +304,17 @@ contract Estate is ERC721 , Ownable , EstateStorage{
         return total;
     }
 
-
     function tokenOfOwnerByIndex(address owner, uint256 index) external view returns (uint256) {
         require(index < balanceOf(owner), "index out of bounds");
         return _ownedTokens[owner][index];
     }
 
-
     function estateOf(address owner) external view returns (uint256[] memory) {
         return _ownedTokens[owner];
     }
 
-
-    function _afterTokenTransfer(address from, address to, uint256 _tokenId) internal override {
-        super._afterTokenTransfer(from , to , _tokenId);
+    function _afterTokenTransfer(address from, address to, uint256 _tokenId, uint256 batchSize) internal override {
+        super._afterTokenTransfer(from , to , _tokenId, batchSize);
         
         // Delete operator of tokenId.
         delete updateOperator[_tokenId];
@@ -369,7 +348,6 @@ contract Estate is ERC721 , Ownable , EstateStorage{
         _ownedTokens[to].push(tokenId);
         _ownedTokensIndex[tokenId] = length;
     }
-
 
     function _isContract(address account) internal view returns (bool) {
         return account.code.length > 0;
