@@ -19,12 +19,12 @@ interface ILAND is IERC721{
     /**
      * @dev Set the operator of the tokenId.
      */    
-    function setUpdateOperator(uint256 assetId, address operator) external;
+    function setUpdateOperator(uint256 tokenId, address operator) external;
     
     /**
-     * @dev Batch set the operator of the assetId.
+     * @dev Batch set the operator of the tokenId.
      */    
-    function setManyUpdateOperator(uint256[] calldata _assetIds, address _operator) external;
+    function setManyUpdateOperator(uint256[] calldata _tokenIds, address _operator) external;
     
     /**
      * @dev Returns the operator for the land id.
@@ -43,9 +43,6 @@ contract EstateStorage {
     // total amount of tokens
     uint256 public totalSupply;
     
-    // Mapping from token id to URI.
-    mapping(uint256 => string) internal _tokenURIs;
-
     // Mapping from token ID to land ids.
     mapping(uint256 => uint256[]) public estateLandIds;
 
