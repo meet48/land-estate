@@ -31,7 +31,6 @@ library LibInt {
         return (x1 & clearLow) | (uint(y) & clearHigh);
     }
 
-
     /**
      * @dev TokenId is converted to coordinates.
      */      

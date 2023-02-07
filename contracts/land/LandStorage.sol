@@ -46,18 +46,17 @@ contract LandStorage {
     event UpdateManager(address indexed owner, address indexed operator, address indexed caller, bool _approved);
     
     /**
-     * @dev Emitted when set the operator of the assetId.
+     * @dev Emitted when set the operator of the tokenId.
      */
-    event UpdateOperator(uint256 indexed assetId, address indexed operator);
+    event UpdateOperator(uint256 indexed tokenId, address indexed operator);
     
     /**
-     * @dev Emitted when set the data of the assetId.
+     * @dev Emitted when set the data of the tokenId.
      */
-    event UpdateLandData(uint256 indexed assetId, address indexed operator, string data);
+    event UpdateLandData(uint256 indexed tokenId, address indexed operator, string data);
     
     /**
      * @dev Emitted when set the estate contract.
      */
     event SetEstateContract(address indexed registry);
-
 }
