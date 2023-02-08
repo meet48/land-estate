@@ -38,7 +38,6 @@ contract Land is ERC721 , Ownable , Access , LandStorage {
         _revokeRole(MINTER_ROLE, _msgSender());
     }
 
-
     /**
      * @dev Set the permissions.
      */    
@@ -52,7 +51,6 @@ contract Land is ERC721 , Ownable , Access , LandStorage {
     function revokeRole(bytes32 role, address account) external onlyOwner {
         _revokeRole(role , account);
     }
-
 
     /**
      * @dev Mint
@@ -82,7 +80,6 @@ contract Land is ERC721 , Ownable , Access , LandStorage {
         }
     }
 
-
     /**
      * @dev Safely mints `tokenId` and transfers it to `to`.
      */
@@ -90,7 +87,6 @@ contract Land is ERC721 , Ownable , Access , LandStorage {
         super._safeMint(to , tokenId);
         totalSupply++;
     }
-
     
     /**
      * @dev The coordinates are converted to tokenId.
@@ -103,7 +99,6 @@ contract Land is ERC721 , Ownable , Access , LandStorage {
         return x._encodeTokenId(y);
     }
 
-
     /**
      * @dev TokenId is converted to coordinates.
      */    
@@ -115,7 +110,6 @@ contract Land is ERC721 , Ownable , Access , LandStorage {
         (x , y) = value._decodeTokenId();
     }
     
-
     /**
      * @dev Set the operator of the owner.
      */    
@@ -126,7 +120,6 @@ contract Land is ERC721 , Ownable , Access , LandStorage {
         
         emit UpdateManager(_owner, _operator, msg.sender, _approved);
     }
-
 
     /**
      * @dev Set the operator of the tokenId.
@@ -141,27 +134,25 @@ contract Land is ERC721 , Ownable , Access , LandStorage {
     }
 
     /**
-     * @dev Batch set the operator of the assetId.
+     * @dev Batch set the operator of the tokenIds.
      */    
-    function setManyUpdateOperator(uint256[] calldata _assetIds, address _operator) external {
-        for (uint i = 0; i < _assetIds.length; i++) {
-            setUpdateOperator(_assetIds[i], _operator);
+    function setManyUpdateOperator(uint256[] calldata _tokenIds, address _operator) external {
+        for (uint i = 0; i < _tokenIds.length; i++) {
+            setUpdateOperator(_tokenIds[i], _operator);
         }
     }
 
     /**
-     * @dev Operator whether to have administrator rights for assetId.
+     * @dev Operator whether to have administrator rights for tokenId.
      */    
-    function isUpdateAuthorized(address operator, uint256 assetId) external view returns (bool) {
-        return _isUpdateAuthorized(operator, assetId);
+    function isUpdateAuthorized(address operator, uint256 tokenId) external view returns (bool) {
+        return _isUpdateAuthorized(operator, tokenId);
     }
 
-
-    function _isUpdateAuthorized(address operator, uint256 assetId) internal view returns (bool) {
-        address owner = ownerOf(assetId);
-        return owner == operator || updateManager[owner][operator] || updateOperator[assetId] == operator;
+    function _isUpdateAuthorized(address operator, uint256 tokenId) internal view returns (bool) {
+        address owner = ownerOf(tokenId);
+        return owner == operator || updateManager[owner][operator] || updateOperator[tokenId] == operator;
     }
-
 
     /**
      * @dev Update land data.
@@ -169,7 +160,6 @@ contract Land is ERC721 , Ownable , Access , LandStorage {
     function updateLandData(int x , int y , string calldata data) external {
         _updateLandData(x, y, data);
     }
-
 
     /**
      * @dev Batch update land data.
@@ -189,14 +179,12 @@ contract Land is ERC721 , Ownable , Access , LandStorage {
         emit UpdateLandData(_tokenId , msg.sender , data);
     }
 
-
     /**
      * @dev Returns whether coordinates have been mint.
      */    
     function exists(int x, int y) external view returns (bool) {
         return _exists(_encodeTokenId(x , y));
     }
-
 
     /**
      * @dev Returns Owner of coordinates.
@@ -212,7 +200,6 @@ contract Land is ERC721 , Ownable , Access , LandStorage {
         return _tokenData(_encodeTokenId(x , y));            
     }
   
-
     /**
      * @dev Returns token ID data.
      */    
@@ -224,29 +211,25 @@ contract Land is ERC721 , Ownable , Access , LandStorage {
         return _assetData[_tokenId];
     }    
 
-
     /**
      * @dev Returns all of owner's lands
-     */    
-    function landOf(address owner) external view returns (int[] memory , int[] memory) {
-        uint256 len = _ownedTokens[owner].length;
-        int[] memory x = new int[](len);
-        int[] memory y = new int[](len);
+     */  
+    function landOf(address owner , uint256 pageNum , uint256 showNum) external view returns(uint256[] memory) {
+        uint256[] memory lands = new uint256[](showNum);
+        uint256 start = pageNum * showNum;
+        uint256 end = start + showNum - 1;
+        uint256 total = _ownedTokens[owner].length;
 
-        for (uint i = 0; i < len; i++) {
-            (x[i] , y[i]) = _decodeTokenId(_ownedTokens[owner][i]);
+        for(uint256 i ; start <= end && start < total ; start++) {
+            lands[i++] = _ownedTokens[owner][start];
         }
-        
-        return (x, y);
+
+        return lands;
     }
-
-
 
     function tokenOfOwnerByIndex(address owner, uint256 index) external view returns (uint256) {
-        require(index < balanceOf(owner), "index out of bounds");
         return _ownedTokens[owner][index];
     }
-
 
     /**
      * @dev Set the base uri.
@@ -255,7 +238,6 @@ contract Land is ERC721 , Ownable , Access , LandStorage {
         baseURI = _baseURI;
     }
 
-
     /**
      * @dev Returns the Uniform Resource Identifier (URI) for `tokenId` token.
      */    
@@ -263,7 +245,6 @@ contract Land is ERC721 , Ownable , Access , LandStorage {
         require(_exists(_tokenId), "URI set of nonexistent token");
         return baseURI.getTokenURL(_tokenId);
     }
-
     
     /**
      * @dev Set the estate contract.
@@ -273,15 +254,13 @@ contract Land is ERC721 , Ownable , Access , LandStorage {
         emit SetEstateContract(_estate);
     }
 
-
     /**
      * @dev Create estate ID.
      */
     function createEstate(int[] calldata x, int[] calldata y, address to , string calldata metadata) external returns(uint256) {
         return _createEstate(x, y, to , metadata);
     }
-    
-    
+        
     function _createEstate(int[] calldata x, int[] calldata y, address to, string memory metadata) internal returns(uint256) {
         address estateAddress = address(Estate);
         require(x.length > 0 && x.length == y.length && estateAddress != address(0), "x , y error or estate not set");
@@ -305,7 +284,6 @@ contract Land is ERC721 , Ownable , Access , LandStorage {
         // solium-disable-next-line security/no-inline-assembly
         assembly { mstore(add(b, 32), x) }
     }
-
 
     /**
      * @dev Transfer Land to estateId
@@ -331,7 +309,6 @@ contract Land is ERC721 , Ownable , Access , LandStorage {
             safeTransferFrom(ownerOf(tokenId) , estateAddress , tokenId , estateIdBytes);
         }
     }
-
 
     /**
      * @dev 'to' can not be estate contract of transfer.
@@ -362,9 +339,8 @@ contract Land is ERC721 , Ownable , Access , LandStorage {
         }
     }
 
-
-    function _afterTokenTransfer(address from, address to, uint256 _tokenId) internal override virtual {
-        super._afterTokenTransfer(from , to , _tokenId);
+    function _afterTokenTransfer(address from, address to, uint256 _tokenId, uint256 batchSize) internal override virtual {
+        super._afterTokenTransfer(from , to , _tokenId, batchSize);
 
         // Delete operator of tokenId.
         delete updateOperator[_tokenId];
@@ -400,6 +376,4 @@ contract Land is ERC721 , Ownable , Access , LandStorage {
     }
 
 
-
 }
-
